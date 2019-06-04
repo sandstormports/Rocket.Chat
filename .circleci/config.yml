@@ -271,6 +271,7 @@ jobs:
             bash .circleci/update-releases.sh
             bash .circleci/snap.sh
             bash .circleci/redhat-registry.sh
+            bash .circleci/sandstorm.sh
 
   image-build:
     <<: *defaults
