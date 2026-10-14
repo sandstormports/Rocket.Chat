@@ -9,6 +9,8 @@ declare global {
 	const __meteor_runtime_config__: {
 		ROOT_URL_PATH_PREFIX: string;
 		ROOT_URL: string;
+		/** Set when running inside a Sandstorm grain (server/sandstorm). */
+		SANDSTORM?: boolean;
 	};
 
 	interface Window {

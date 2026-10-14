@@ -5,6 +5,8 @@ import './desktopInjection';
 import './killMeteorStream';
 import './oauthProxy';
 import './oauthRedirectUri';
+import './randomUUID';
+import './sandstormHeaders';
 import './settings';
 import './stubMeteorStream';
 import './subscribeViaSDK';

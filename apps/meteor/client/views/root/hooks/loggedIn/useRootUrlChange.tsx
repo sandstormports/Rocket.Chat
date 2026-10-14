@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import UrlChangeModal from '../../../../components/UrlChangeModal';
-import { getRootUrl, getRootUrlPathPrefix } from '../../../../lib/meteorRuntimeConfig';
+import { getRootUrl, getRootUrlPathPrefix, isSandstorm } from '../../../../lib/meteorRuntimeConfig';
 
 export const useRootUrlChange = () => {
 	const { t } = useTranslation();
@@ -35,6 +35,10 @@ export const useRootUrlChange = () => {
 
 	useEffect(() => {
 		if (!isAdmin) {
+			return;
+		}
+		// Sandstorm serves every session from a new random host, so the URL never matches.
+		if (isSandstorm()) {
 			return;
 		}
 		if (!siteUrl) {
