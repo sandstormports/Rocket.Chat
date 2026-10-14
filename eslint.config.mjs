@@ -12,6 +12,9 @@ export default [
 			'apps/meteor/**/imports',
 			'apps/meteor/**/packages',
 			'apps/meteor/.meteor/**',
+			// Sandstorm build output, and FOSS stubs that only compile inside the generated FOSS copy.
+			'apps/meteor/.sandstorm/.build/**',
+			'apps/meteor/.sandstorm/foss/overlay/**',
 		],
 	},
 	{
