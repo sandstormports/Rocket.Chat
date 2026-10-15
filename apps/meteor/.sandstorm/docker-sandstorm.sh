@@ -3,6 +3,7 @@
 # installing Sandstorm on the host.
 #
 #   docker-sandstorm.sh up       create the container, install Sandstorm (dev mode), start it
+#   docker-sandstorm.sh start    start it again (e.g. after Docker restarted)
 #   docker-sandstorm.sh dev      run `spk dev` for this app inside the container (Ctrl-C to stop)
 #   docker-sandstorm.sh pack     `spk pack` .build/rocketchat-test.spk, signed with a test key
 #   docker-sandstorm.sh shell    a shell in the container
@@ -38,6 +39,11 @@ case "${1:-}" in
 		'
 		echo "Sandstorm: http://local.sandstorm.io:$PORT"
 		;;
+	start)
+		docker start "$NAME" >/dev/null
+		in_container /opt/sandstorm/sandstorm start
+		echo "Sandstorm: http://local.sandstorm.io:$PORT"
+		;;
 	dev)
 		docker exec -it "$NAME" bash -c "cd '$HERE' && SKIP_BUNDLE=1 SKIP_DEPS=1 PATH=/opt/sandstorm/latest/bin:\$PATH ./build.sh dev"
 		;;
@@ -49,7 +55,7 @@ case "${1:-}" in
 	shell) docker exec -it "$NAME" bash ;;
 	down) docker rm -f "$NAME" ;;
 	*)
-		sed -n '2,15p' "$0" >&2
+		sed -n '2,16p' "$0" >&2
 		exit 1
 		;;
 esac

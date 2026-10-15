@@ -1,4 +1,5 @@
 import '../lib/rooms/roomTypes';
+import '../sandstorm';
 import './appRoot';
 import './audit';
 import './callbacks';

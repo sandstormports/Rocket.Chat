@@ -270,6 +270,10 @@ const FORCED_SETTINGS = {
 	Statistics_reporting: 'false',
 	Troubleshoot_Disable_Statistics_Generator: 'true',
 	Troubleshoot_Disable_Workspace_Sync: 'true',
+	// The deployment fingerprint guards cloud registration against cloned workspaces.
+	// A grain is never registered, and its Site URL settles only after the first
+	// boot, which would otherwise ask the owner to confirm a "Unique ID change".
+	Deployment_FingerPrint_Verified: 'true',
 	Push_enable: 'false',
 	Push_enable_gateway: 'false',
 	API_Embed: 'false',
@@ -340,6 +344,7 @@ function configureRocketChat() {
 	process.env.SETTINGS_HIDDEN = HIDDEN_SETTINGS.join(',');
 	// The grain cannot reach Rocket.Chat's statistics collector anyway.
 	process.env.RC_DISABLE_STATISTICS_REPORTING = 'true';
+	process.env.AUTO_ACCEPT_FINGERPRINT = 'true';
 
 	process.env.PORT = APP_PORT;
 	// The browser reaches the grain on a random per-session host, which the server
@@ -351,6 +356,7 @@ function configureRocketChat() {
 	process.env.DEPLOY_METHOD = 'sandstorm';
 	process.env.DEPLOY_PLATFORM = 'sandstorm';
 	process.env.SANDSTORM = process.env.SANDSTORM || '1';
+	process.env.SANDSTORM_BRIDGE_MODULE = process.env.SANDSTORM_BRIDGE_MODULE || path.join(__dirname, 'bridge', 'index.mjs');
 	process.env.HOME = process.env.HOME || VAR;
 	process.env.TMPDIR = process.env.TMPDIR || path.join(VAR, 'tmp');
 	fs.mkdirSync(process.env.TMPDIR, { recursive: true });

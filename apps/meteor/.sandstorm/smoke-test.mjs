@@ -5,7 +5,7 @@
 //   node smoke-test.mjs       # BASE=http://127.0.0.1:9000 by default
 //
 // Covers Sandstorm login and roles, the forced settings, chat between two users,
-// uploads, and the Community build's license stand-ins.
+// uploads, avatars, and the Community build's license stand-ins.
 const BASE = process.env.BASE || 'http://127.0.0.1:9000';
 let failures = 0;
 const check = (cond, msg, extra) => {
@@ -124,6 +124,18 @@ if (upBody?.file?.url) {
 	const dl = await fetch(url, { headers: { Cookie: `rc_uid=${aliceS.userId}; rc_token=${aliceS.authToken}` } });
 	check(dl.status === 200 && (await dl.text()) === 'sandstorm upload test', 'uploaded file downloads', dl.status);
 }
+
+// Users without a Rocket.Chat avatar show their Sandstorm profile picture.
+const avatar = (path) => fetch(`${BASE}/avatar/${path}`, { redirect: 'manual' });
+const aliceAvatar = await avatar('alice');
+check(
+	aliceAvatar.status === 302 && aliceAvatar.headers.get('location') === 'http://static.sandstorm.invalid/alice.png',
+	'avatar redirects to the Sandstorm picture',
+	aliceAvatar.status,
+);
+check((await avatar(`uid/${aliceS.userId}`)).status === 302, 'avatar by user ID redirects too');
+const bobAvatar = await avatar('bob');
+check(bobAvatar.status === 200 && bobAvatar.headers.get('content-type')?.includes('svg'), 'no picture: letter avatar', bobAvatar.status);
 
 // Roles follow Sandstorm permissions on every login.
 const bobPromoted = await fetch(`${BASE}/.sandstorm-login?sandstorm_user=bob&sandstorm_permissions=admin`, { method: 'POST' });

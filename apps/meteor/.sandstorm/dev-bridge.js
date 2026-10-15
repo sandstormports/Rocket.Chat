@@ -23,7 +23,13 @@ const LISTEN_PORT = Number(process.argv[2] || 9000);
 const TARGET_PORT = Number(process.argv[3] || 8000);
 
 const USERS = {
-	alice: { id: 'a11ce000000000000000000000000000', name: 'Alice Owner', handle: 'alice', permissions: 'admin' },
+	alice: {
+		id: 'a11ce000000000000000000000000000',
+		name: 'Alice Owner',
+		handle: 'alice',
+		permissions: 'admin',
+		picture: 'http://static.sandstorm.invalid/alice.png',
+	},
 	bob: { id: 'b0b00000000000000000000000000000', name: 'Bob Member', handle: 'bob', permissions: '' },
 	carol: { id: 'ca7010000000000000000000000000000', name: 'Carol Member', handle: 'carol', permissions: '' },
 };
@@ -52,12 +58,15 @@ function sandstormHeaders(req) {
 	const { name, setCookie } = pickUser(req);
 	const user = USERS[name];
 	const permissionsOverride = new URL(req.url, 'http://localhost').searchParams.get('sandstorm_permissions');
-	headers['x-sandstorm-session-id'] = 'dev-session';
+	headers['x-sandstorm-session-id'] = `dev-session-${name}`;
 	if (user) {
 		headers['x-sandstorm-user-id'] = user.id;
 		headers['x-sandstorm-username'] = encodeURIComponent(user.name);
 		headers['x-sandstorm-preferred-handle'] = user.handle;
 		headers['x-sandstorm-permissions'] = permissionsOverride ?? user.permissions;
+		if (user.picture) {
+			headers['x-sandstorm-user-picture'] = user.picture;
+		}
 	} else {
 		headers['x-sandstorm-username'] = encodeURIComponent('Anonymous User');
 		headers['x-sandstorm-permissions'] = '';

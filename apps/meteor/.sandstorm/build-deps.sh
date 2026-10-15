@@ -8,6 +8,7 @@
 #                       npm modules link against, plus the matching dynamic loader
 #   sys/, proc/         stubs for files mongod reads (a grain has no /sys or /proc)
 #   sandstorm/start.js  the grain launcher
+#   sandstorm/bridge/   Cap'n Proto client for the Sandstorm API (activity events, Powerbox)
 #
 # Modeled on meteor-spk's gather-deps.sh and WeKan's sandstorm-src/build-deps.sh,
 # but built from scratch instead of on top of meteor-spk 0.6.0: Rocket.Chat needs
@@ -121,6 +122,9 @@ printf 'MemTotal:        4194304 kB\nMemFree:         2097152 kB\nMemAvailable: 
 
 echo "==> launcher"
 cp "$HERE/start.js" "$DEPS/sandstorm/start.js"
+rm -rf "$DEPS/sandstorm/bridge"
+cp -r "$HERE/bridge" "$DEPS/sandstorm/bridge"
+rm "$DEPS/sandstorm/bridge/README.md"
 
 echo "==> verify"
 # Run node and mongod with only the grain's filesystem visible, so a library or
@@ -129,6 +133,7 @@ if command -v bwrap >/dev/null; then
 	"$HERE/sandbox.sh" /bin/node --version
 	"$HERE/sandbox.sh" /bin/mongod --version | head -1
 	"$HERE/sandbox.sh" /bin/node -e 'require("/programs/server/npm/node_modules/sharp"); console.log("native modules load")'
+	"$HERE/sandbox.sh" /bin/node -e 'require("/sandstorm/bridge/index.mjs"); console.log("Sandstorm API client loads")'
 else
 	echo "    bwrap not installed; skipping the isolated check"
 fi

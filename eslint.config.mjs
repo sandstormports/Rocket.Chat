@@ -15,6 +15,9 @@ export default [
 			// Sandstorm build output, and FOSS stubs that only compile inside the generated FOSS copy.
 			'apps/meteor/.sandstorm/.build/**',
 			'apps/meteor/.sandstorm/foss/overlay/**',
+			// Vendored and generated code (see apps/meteor/.sandstorm/bridge/README.md).
+			'apps/meteor/.sandstorm/bridge/capnp/**',
+			'apps/meteor/.sandstorm/bridge/capnp-es/**',
 		],
 	},
 	{

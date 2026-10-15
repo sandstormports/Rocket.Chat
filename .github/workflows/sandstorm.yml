@@ -53,6 +53,10 @@ jobs:
           ./build.sh bundle
           ./build.sh deps
 
+      - name: Sandstorm API client against a mock bridge
+        working-directory: apps/meteor/.sandstorm
+        run: node bridge-test.mjs
+
       - name: Smoke test in a grain-like sandbox
         working-directory: apps/meteor/.sandstorm
         run: |
