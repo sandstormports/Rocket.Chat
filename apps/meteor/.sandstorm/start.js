@@ -356,6 +356,7 @@ function configureRocketChat() {
 	process.env.DEPLOY_METHOD = 'sandstorm';
 	process.env.DEPLOY_PLATFORM = 'sandstorm';
 	process.env.SANDSTORM = process.env.SANDSTORM || '1';
+	process.env.SANDSTORM_BRIDGE_MODULE = process.env.SANDSTORM_BRIDGE_MODULE || path.join(__dirname, 'bridge', 'index.mjs');
 	process.env.HOME = process.env.HOME || VAR;
 	process.env.TMPDIR = process.env.TMPDIR || path.join(VAR, 'tmp');
 	fs.mkdirSync(process.env.TMPDIR, { recursive: true });
