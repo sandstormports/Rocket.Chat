@@ -56,6 +56,7 @@ import './hooks/messages/notifyUsersOnMessage';
 import './lib/auth-providers/meteor-developer';
 import './lib/auth-providers/linkedin';
 import './lib/auth/token-login';
+import './sandstorm';
 import './lib/notifications/email/api';
 import './lib/messaging/markdown';
 import './lib/messaging/mentions/getMentionedTeamMembers';

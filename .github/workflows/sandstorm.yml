@@ -1,0 +1,86 @@
+name: Sandstorm package
+
+# Builds the Community (FOSS) Sandstorm package, boots it in a bubblewrap sandbox
+# laid out like a grain, runs the end-to-end smoke test, and packs an .spk.
+# See apps/meteor/.sandstorm/README.md.
+#
+# The .spk is signed with the app's key when the SANDSTORM_KEYRING secret holds
+# a base64-encoded ~/.sandstorm-keyring; otherwise with a throwaway key under a
+# test app ID, which is fine for trying the package but not for publishing.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sandstorm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+
+      - name: System packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bubblewrap rsync build-essential python3
+          # Ubuntu 24.04 restricts the unprivileged user namespaces that bubblewrap
+          # and Sandstorm rely on.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Meteor
+        run: |
+          curl -fsSL https://install.meteor.com/ | sh
+          echo "$HOME/.meteor" >> "$GITHUB_PATH"
+
+      - name: Sandstorm (development install, for spk)
+        run: |
+          curl -fsSL https://install.sandstorm.io -o /tmp/install-sandstorm.sh
+          sudo REPORT=no bash /tmp/install-sandstorm.sh -d
+          echo /opt/sandstorm/latest/bin >> "$GITHUB_PATH"
+
+      - name: Build bundle and deps
+        working-directory: apps/meteor/.sandstorm
+        env:
+          TOOL_NODE_FLAGS: --max-old-space-size=8192
+        run: |
+          corepack enable
+          ./build.sh bundle
+          ./build.sh deps
+
+      - name: Smoke test in a grain-like sandbox
+        working-directory: apps/meteor/.sandstorm
+        run: |
+          ./sandbox.sh > grain.log 2>&1 &
+          node dev-bridge.js > bridge.log 2>&1 &
+          for i in $(seq 1 120); do grep -q 'SERVER RUNNING' grain.log && break; sleep 2; done
+          node smoke-test.mjs || { tail -100 grain.log; exit 1; }
+
+      - name: Pack
+        id: pack
+        working-directory: apps/meteor/.sandstorm
+        env:
+          SANDSTORM_KEYRING: ${{ secrets.SANDSTORM_KEYRING }}
+        run: |
+          if [ -n "$SANDSTORM_KEYRING" ]; then
+            printf '%s' "$SANDSTORM_KEYRING" | base64 -d > "$HOME/.sandstorm-keyring"
+            SPK=rocketchat.spk
+          else
+            echo "::warning::SANDSTORM_KEYRING not set; signing with a throwaway key under a test app ID."
+            export APP_ID="$(spk keygen | tail -1)"
+            SPK=rocketchat-test.spk
+          fi
+          SKIP_BUNDLE=1 SKIP_DEPS=1 ./build.sh pack "$SPK"
+          echo "spk=apps/meteor/.sandstorm/$SPK" >> "$GITHUB_OUTPUT"
+          echo "Packed $SPK: $(( $(stat -c%s "$SPK") / 1024 / 1024 )) MiB"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: rocketchat-sandstorm
+          path: ${{ steps.pack.outputs.spk }}
+          retention-days: 14

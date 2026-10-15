@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 
 import { createMeteorBackedSdk, createMeteorBackedStorage } from './meteorBackedSdk';
 import { isSdkTransportEnabled } from './sdkTransportEnabled';
-import { getRootUrl } from '../meteorRuntimeConfig';
+import { getRootUrl, isSandstorm } from '../meteorRuntimeConfig';
 import { STORAGE_KEYS, getStoredItem, removeStoredItem } from './storage';
 import { userIdStore } from '../user';
 
@@ -14,7 +14,9 @@ const sdkTransportEnabled = isSdkTransportEnabled();
 const stripTrailingSlash = (value: string): string => (value.endsWith('/') ? value.slice(0, -1) : value);
 
 const computeDdpUrl = (): string => {
-	const rootUrl = getRootUrl();
+	// A Sandstorm grain is reached on a random per-session host; the server's ROOT_URL
+	// is an internal address the browser cannot connect to.
+	const rootUrl = isSandstorm() ? undefined : getRootUrl();
 	const source = rootUrl && rootUrl !== '/' ? rootUrl : window.location.origin;
 	return stripTrailingSlash(source.replace(/^http/, 'ws'));
 };
@@ -222,7 +224,7 @@ export const adoptAccountFromMeteorLoginResult = (result: unknown): void => {
 		tokenExpires = new Date(typeof d === 'string' ? parseInt(d, 10) : d);
 	}
 	const sdk = getDdpSdk();
-	sdk.account.user = { ...sdk.account.user, token: r.token, tokenExpires, id: r.id } as typeof sdk.account.user;
+	sdk.account.user = { ...sdk.account.user, token: r.token, tokenExpires, id: r.id };
 	sdk.account.uid = r.id;
 };
 

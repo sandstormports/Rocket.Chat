@@ -1,0 +1,8 @@
+{
+	"name": "@rocket.chat/license",
+	"version": "0.0.0-sandstorm-foss",
+	"private": true,
+	"license": "MIT",
+	"description": "MIT stand-in for the Enterprise-licensed @rocket.chat/license in the Sandstorm Community build",
+	"main": "index.js"
+}

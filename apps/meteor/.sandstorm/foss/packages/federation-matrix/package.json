@@ -1,0 +1,8 @@
+{
+	"name": "@rocket.chat/federation-matrix",
+	"version": "0.0.0-sandstorm-foss",
+	"private": true,
+	"license": "MIT",
+	"description": "MIT stand-in for the Enterprise-licensed @rocket.chat/federation-matrix in the Sandstorm Community build",
+	"main": "index.js"
+}

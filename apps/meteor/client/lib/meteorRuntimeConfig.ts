@@ -4,7 +4,7 @@
 // the eventual replacement (a static config injected at build time) is a
 // single-file swap.
 
-const getConfig = (): { ROOT_URL?: string; ROOT_URL_PATH_PREFIX?: string } | undefined => {
+const getConfig = (): { ROOT_URL?: string; ROOT_URL_PATH_PREFIX?: string; SANDSTORM?: boolean } | undefined => {
 	if (typeof __meteor_runtime_config__ !== 'object' || __meteor_runtime_config__ === null) {
 		return undefined;
 	}
@@ -14,6 +14,9 @@ const getConfig = (): { ROOT_URL?: string; ROOT_URL_PATH_PREFIX?: string } | und
 export const getRootUrl = (): string | undefined => getConfig()?.ROOT_URL;
 
 export const getRootUrlPathPrefix = (): string => getConfig()?.ROOT_URL_PATH_PREFIX ?? '';
+
+// Set by the server when running inside a Sandstorm grain (server/sandstorm).
+export const isSandstorm = (): boolean => getConfig()?.SANDSTORM === true;
 
 export const setRootUrl = (value: string): void => {
 	const config = getConfig();
