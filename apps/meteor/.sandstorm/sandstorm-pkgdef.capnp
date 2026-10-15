@@ -113,6 +113,7 @@ const pkgdef :Spk.PackageDefinition = (
 				),
 			],
 			eventTypes = [
+				# server/sandstorm/activity.ts refers to these by position: append, never reorder.
 				(name = "message", verbPhrase = (defaultText = "sent message")),
 				(name = "privateMessage", verbPhrase = (defaultText = "sent private message"), requiredPermission = (explicitList = void)),
 			]
